@@ -606,7 +606,7 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
   }
   gpu_viewport_framebuffer_view_set(viewport, 0);
   DefaultTextureList *dtxl = viewport->txl;
-  DefaultFramebufferList *dfbl = viewport->fbl;
+  DefaultFramebufferList *dfbl = viewport->fbl; 
 
   /* The composite framebuffer object needs to be created in the window context. */
   GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
@@ -614,7 +614,7 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
                                     GPU_ATTACHMENT_NONE,
                                     GPU_ATTACHMENT_TEXTURE(dtxl->color),
                                     GPU_ATTACHMENT_TEXTURE(dtxl->color_overlay),
-                                });
+                                });//
 
   GPUVertFormat *vert_format = immVertexFormat();
   uint pos = GPU_vertformat_attr_add(vert_format, "pos", GPU_COMP_F32, 2, GPU_FETCH_FLOAT);
