@@ -78,6 +78,126 @@ extern char datatoc_gpu_shader_3D_image_vert_glsl[];
 extern char datatoc_gpu_shader_image_frag_glsl[];
 extern char datatoc_gpu_shader_image_overlays_merge_frag_glsl[];
 extern char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[];
+
+
+//char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[] = {
+//    "#define S3D_DISPLAY_ANAGLYPH 0      \n"
+//
+//    "/* Composite stereo textures */   \n"
+//    "uniform sampler2D imageTexture;    \n"
+//    "uniform sampler2D overlayTexture;   \n"
+//    "                     \n"
+//    "uniform int stereoDisplaySettings;   \n"
+//
+//    "layout(location = 0) out vec4 imageColor;   \n"
+//    "layout(location = 1) out vec4 overlayColor;  \n"
+//    //"out vec4 Ci;  \n"
+//
+//    "float blendScreen(float base, float blend)	\n"
+//    "{	\n"
+//    "	return 1.f - ((1.f - base) * (1.f - blend));	\n"
+//    "}	\n"
+//
+//    "vec3 blendScreen2(vec3 base, vec3 blend)	\n"
+//    "{	\n"
+//    "	return vec3(blendScreen(base.r, blend.r), blendScreen(base.g, blend.g), blendScreen(base.b, "
+//    "blend.b));	\n"
+//    "}	\n"
+//
+//    "void main()   \n"
+//    "{                     \n"
+//    "  ivec2 texel = ivec2(gl_FragCoord.xy);    \n"
+//
+//    "vec4 myRed, myCyan;    \n"
+//    "vec4 stereoL = texelFetch(imageTexture, texel, 0);     \n"
+//    "vec4 stereoR = texelFetch(overlayTexture, texel, 0);   \n"
+//
+//    "int method = 0; //traditional    \n"
+//    //"int method = 1; //grayscale    \n"
+//    //"int method = 2; //half color    \n"
+//    //"int method = 3; //dubois1    \n"
+//    //"int method = 4; //dubois2    \n"
+//
+//    //"vec4 imageColor, overlayColor; \n"
+//
+//    "if (method == 0) //traditional    \n"
+//    "{      \n"
+//    "myRed = stereoL; \n"
+//    "myCyan = stereoR; \n"
+//    "}      \n"
+//
+//    "else if (method == 1) //grayscale  \n"
+//    "{    \n"
+//    "float grayL = dot(stereoL.rgb, vec3(.299f, .587f, .114f)); \n"
+//    "float grayR = dot(stereoR.rgb, vec3(.299f, .587f, .114f)); \n"
+//
+//    "myRed = vec4(vec3(grayL), stereoL.a); \n"
+//    "myCyan = vec4(vec3(grayR), stereoR.a); \n"
+//
+//    "}    \n"
+//
+//    //"else if (method == 2) //half color \n"
+//    //"{    \n"
+//    ////"float grayL = dot(stereoL.rgb, vec3(.299f, .587f, .114f)); \n"
+//    ////"myRed = vec4(vec3(grayL), stereoL.a); \n"
+//    //
+//    //////"myCyan = stereoR; \n"
+//    ////"myCyan = stereoR; \n"
+//    ////"myCyan = vec4(vec3(0.f, stereoR.g, stereoR.b), stereoR.a); \n"
+//    //
+//    //"}    \n"
+//
+//    //"else if (method == 3) //dubois1  \n"
+//    //"{    \n"
+//    //    "float duboisRL = dot(stereoL.rgb, vec3(.456f, .5f, .176)); \n"
+//    //    "float duboisRR = dot(stereoR.rgb, vec3(-.043f, -.088f, -.002f)); \n"
+//    //    "myRed = vec4(duboisRL + duboisRR, duboisRL + duboisRR, duboisRL + duboisRR, stereoL.a);
+//    //    \n"
+//    ////    //"myRed = vec4(duboisRL + duboisRR); \n"
+//    ////    //"myRed = vec4(duboisRL + duboisRR, 0.f, 0.f, duboisRL + duboisRR); \n"
+//
+//    //    "float duboisGL = dot(stereoL.rgb, vec3(-.04f, -.038f, -.016f)); \n"
+//    //    "float duboisGR = dot(stereoR.rgb, vec3(.378f, .734f, -.018f)); \n"
+//    //    "float duboisBL = dot(stereoL.rgb, vec3(-.015f, -.021f, -.005f)); \n"
+//    //    "float duboisBR = dot(stereoR.rgb, vec3(-.072f, -.113f, 1.226f)); \n"
+//    //    "myCyan = vec4(0.f, duboisGL + duboisGR, duboisBL + duboisBR, stereoR.a); \n"
+//    //    //"myCyan = vec4(duboisGL + duboisGR); \n"
+//    //"}    \n"
+//
+//    //"else if (method == 4) //dubois2 \n"
+//    //"{    \n"
+//    //    "float outR = (stereoL.r * 456.f + stereoL.g * 500.f + stereoL.b * 176.f + stereoR.r *
+//    //    -43.f + stereoR.g * -88.f + stereoR.b * -2.f) / 1000.f;  \n"
+//
+//    //    "float outG = (stereoL.r * -40.f + stereoL.g * -38.f + stereoL.b * -16.f + stereoR.r *
+//    //    378.f + stereoR.g * 734.f + stereoR.b * -18.f) / 1000.f;\n" "float outB = (stereoL.r *
+//    //    -15.f + stereoL.g * -21.f + stereoL.b * -5.f + stereoR.r * -72.f + stereoR.g * -113.f +
+//    //    stereoR.b * 1226.f) / 1000.f;\n"
+//    //    "\n"
+//    //    "\n"
+//    //    //"myRed = vec4(outR,outR,outR, stereoL.a);\n"
+//    //    "myRed = vec4(vec3(outR), stereoL.a);\n"
+//    //    //"myCyan = vec4(0.f , outG, outB, stereoR.a);\n"
+//    //    //"myCyan = vec4(outR , outG, outB, stereoR.a);\n"
+//    //    //"myCyan = vec4(0.f, outG, outB, stereoR.a);\n"
+//    //    "myCyan = vec4(outR, outG, outB, stereoR.a);\n"
+//
+//    //"myRed = vec4(grayL, 1.f, 1.f, stereoL.a); \n"
+//    //"myCyan = vec4(0.f, grayR, grayR, stereoR.a); \n"
+//
+//    //    "}    \n"
+//
+//    "imageColor = myRed;    \n"
+//    "overlayColor = myCyan; \n"
+//
+//    //"Ci = vec4(blendScreen2(myRed.rgb, myCyan.rgb), 1.f); \n"
+//    //"imageColor = vec4(blendScreen2(myRed.rgb, myCyan.rgb), myRed.a); \n"
+//
+//    "}   \n"
+//};
+
+
+
 extern char datatoc_gpu_shader_image_color_frag_glsl[];
 extern char datatoc_gpu_shader_image_desaturate_frag_glsl[];
 extern char datatoc_gpu_shader_image_varying_color_frag_glsl[];
@@ -956,6 +1076,11 @@ static const GPUShaderStages builtin_shader_stages[GPU_SHADER_BUILTIN_LEN] = {
             .vert = datatoc_gpu_shader_2D_vert_glsl,
             .frag = datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl,
         },
+        //[GPU_SHADER_2D_IMAGE_OVERLAYS_STEREO_MERGE] =
+        //{
+        //    .vert = datatoc_gpu_shader_2D_vert_glsl,
+        //    .frag = datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl,
+        //},
     [GPU_SHADER_2D_IMAGE] =
         {
             .vert = datatoc_gpu_shader_2D_image_vert_glsl,
