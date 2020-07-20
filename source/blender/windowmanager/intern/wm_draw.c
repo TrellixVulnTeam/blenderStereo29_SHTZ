@@ -188,6 +188,8 @@ static bool wm_draw_region_stereo_set(Main *bmain,
           Camera *cam = v3d->camera->data;
           CameraBGImage *bgpic = cam->bg_images.first;
           v3d->multiview_eye = sview;
+          //printf("sview aka multiview_eye = %d \n", sview);
+
           if (bgpic) {
             bgpic->iuser.multiview_eye = sview;
           }
