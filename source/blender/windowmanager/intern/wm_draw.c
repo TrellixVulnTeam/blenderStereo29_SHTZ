@@ -678,7 +678,7 @@ static void wm_draw_window_offscreen(bContext *C, wmWindow *win, bool stereo)
         bool use_viewport = WM_region_use_viewport(area, region);
 
         if (stereo && wm_draw_region_stereo_set(bmain, area, region, STEREO_LEFT_ID)) {
-          wm_draw_region_buffer_create(region, true, use_viewport);
+          wm_draw_region_buffer_create(region, true, use_viewport); //create if needed
 
           for (int view = 0; view < 2; view++) {
             eStereoViews sview;
@@ -699,6 +699,26 @@ static void wm_draw_window_offscreen(bContext *C, wmWindow *win, bool stereo)
             GPU_viewport_stereo_composite(viewport, win->stereo3d_format);
           }
         }
+
+        //for (int view = 0; view < 2; view++) {
+        //    eStereoViews sview;
+        //    if (view == 0) {
+        //      sview = STEREO_LEFT_ID;
+        //    }
+        //    else {
+        //      sview = STEREO_RIGHT_ID;
+        //      wm_draw_region_stereo_set(bmain, area, region, sview);
+        //    }
+
+        //    wm_draw_region_bind(region, view);
+        //    ED_region_do_draw(C, region);
+        //    wm_draw_region_unbind(region);
+        //  }
+        //  if (use_viewport) {
+        //    //GPUViewport *viewport = region->draw_buffer->viewport;
+        //    //GPU_viewport_stereo_composite(viewport, win->stereo3d_format);
+        //  }
+        //}
         else {
           wm_draw_region_buffer_create(region, false, use_viewport);
           wm_draw_region_bind(region, 0);
@@ -826,6 +846,7 @@ static void wm_draw_window(bContext *C, wmWindow *win)
 {
   bScreen *screen = WM_window_get_active_screen(win);
   bool stereo = WM_stereo3d_enabled(win, false);
+  //bool stereo = WM_stereo3d_enabled(win, true);
   /* Draw area regions into their own framebuffer. This way we can redraw
    * the areas that need it, and blit the rest from existing framebuffers. */
   wm_draw_window_offscreen(C, win, stereo);

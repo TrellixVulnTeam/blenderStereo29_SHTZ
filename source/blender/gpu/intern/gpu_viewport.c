@@ -177,9 +177,10 @@ static void gpu_viewport_framebuffer_view_set(GPUViewport *viewport, int view)
 
     for (int i = 0; i < MAX_ENABLE_ENGINE; i++) {
       if (viewport->engine_data[i].handle != NULL) {
-        ViewportEngineData *data = viewport->engine_data[i].data;
-        SWAP(StorageList *, data->stl, data->stl_stereo);
-        SWAP(TextureList *, data->txl, data->txl_stereo);
+        //printf("handle for %d \n", i); //0 and 1
+        //ViewportEngineData *data = viewport->engine_data[i].data;
+        //SWAP(StorageList *, data->stl, data->stl_stereo);
+        //SWAP(TextureList *, data->txl, data->txl_stereo);
       }
       else {
         break;
@@ -608,21 +609,37 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
   DefaultTextureList *dtxl = viewport->txl;
   DefaultFramebufferList *dfbl = viewport->fbl;
 
+
+  //for (int i = 0; i < MAX_ENABLE_ENGINE; i++) {
+  //  if (viewport->engine_data[i].handle != NULL) {
+  //     printf("handle for %d \n", i); //0 and 1
+  //    ViewportEngineData *data = viewport->engine_data[i].data;
+  //    //SWAP(StorageList *, data->stl, data->stl_stereo);
+  //    //SWAP(TextureList *, data->txl, data->txl_stereo);
+
+  //   GPUTexture *tex = data->txl_stereo->textures[0];
+  //   //GPUTexture *tex = data->txl_stereodtxl->textures[0];
+
+  //  }
+  //  else {
+  //    break;
+  //  }
+  //}
+
+
+  //GPUTexture *tex = dtxl->textures[0];
+  //GPUTexture *tex = viewport->txl->color_stereo[0];
+
   /* The composite framebuffer object needs to be created in the window context. */
-  //GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
+  // GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
   //                              {
   //                                  GPU_ATTACHMENT_NONE,
   //                                  GPU_ATTACHMENT_TEXTURE(dtxl->color),
   //                                  GPU_ATTACHMENT_TEXTURE(dtxl->color_overlay),
   //                              });  //
 
-    GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
-                                {
-                                    GPU_ATTACHMENT_NONE,
-                                    GPU_ATTACHMENT_TEXTURE(dtxl->color)
-                                });  //
-
-
+  GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
+                                {GPU_ATTACHMENT_NONE, GPU_ATTACHMENT_TEXTURE(dtxl->color)});  //
 
   GPUVertFormat *vert_format = immVertexFormat();
   uint pos = GPU_vertformat_attr_add(vert_format, "pos", GPU_COMP_F32, 2, GPU_FETCH_FLOAT);
@@ -636,42 +653,50 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
   // immBindBuiltinProgram(GPU_SHADER_2D_UNIFORM_COLOR);
   // immBindBuiltinProgram(GPU_SHADER_2D_CHECKER);
 
-  // immUniform4fv("color1", 1, 1, 1, 1);
-  //const float color1[4] = {1.f, 1.f, 1.f, 1.f};
-  //const float color2[4] = {0.f, 0.f, 0.f, 0.f};
-  //immUniform4fv("color1", color1);
-  //immUniform4fv("color2", color2);
-  //immUniform1i("size", 16);
+  //// immUniform4fv("color1", 1, 1, 1, 1);
+  //// const float color1[4] = {1.f, 1.f, 1.f, 1.f};
+  //// const float color2[4] = {0.f, 0.f, 0.f, 0.f};
+  //// immUniform4fv("color1", color1);
+  //// immUniform4fv("color2", color2);
+  //// immUniform1i("size", 16);
 
+  ///***********PRINT OUT ENCODED SHADER***********/
+  ///*
   // void GPU_shader_get_builtin_shader_code(eGPUBuiltinShader shader,
   //                                       const char **r_vert,
   //                                       const char **r_frag,
   //                                       const char **r_geom,
   //                                       const char **r_defines);
+  //*/
 
-  /***********PRINT OUT ENCODED SHADER***********/
-  //const char *vert;
-  //const char *frag;
-  //const char *geom;
-  //const char *defines;
-  //GPU_shader_get_builtin_shader_code(GPU_SHADER_2D_CHECKER, &vert, &frag, &geom, &defines);
+  //const char *vert, *frag, *geom, *defines;
 
-  //printf("-------0------\n");
-  //printf("-------vert------\n");
-  //printf(vert);
-  //printf("\n");
-  //printf("-------frag------\n");
-  //printf(frag);
-  //printf("\n");
-  /*******************************/
+  //// const char *vert;
+  //// const char *frag;
+  //// const char *geom;
+  //// const char *defines;
+  //GPU_shader_get_builtin_shader_code(
+  //    GPU_SHADER_2D_IMAGE_OVERLAYS_MERGE, &vert, &frag, &geom, &defines);
+
+  //// printf("-------0------\n");
+  //// printf("-------vert------\n");
+  //// printf(vert);
+  //// printf("\n");
+  //// printf("-------frag------\n");
+  //// printf(frag);
+  //// printf("\n");
+  ///*******************************/
 
   immUniform1i("imageTexture", 0);
-  //immUniform1i("overlayTexture", 1);
+  immUniform1i("stereoTexture0", 1);
+  immUniform1i("stereoTexture1", 2);
+
+  //// immUniform1i("overlayTexture", 1);
   //int settings = stereo_format->display_mode;
   //if (settings == S3D_DISPLAY_ANAGLYPH) {
   //  switch (stereo_format->anaglyph_type) {
   //    case S3D_ANAGLYPH_REDCYAN:
-  //      GPU_color_mask(false, true, true, true);
+        GPU_color_mask(false, true, true, true);
   //      break;
   //    case S3D_ANAGLYPH_GREENMAGENTA:
   //      GPU_color_mask(true, false, true, true);
@@ -687,12 +712,35 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
   //}
   //immUniform1i("stereoDisplaySettings", settings);
 
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glClear(GL_COLOR_BUFFER_BIT);
+  //// glClear(GL_DEPTH_BUFFER_BIT);
+  //// glClear(GL_COLOR_BUFFER_BIT);
 
+
+
+  //  for (int i = 0; i < MAX_ENABLE_ENGINE; i++) {
+  //    if (viewport->engine_data[i].handle != NULL) {
+  //      printf("handle for %d \n", i);  // 0 and 1
+  //      ViewportEngineData *data = viewport->engine_data[i].data;
+  //      // SWAP(StorageList *, data->stl, data->stl_stereo);
+  //      // SWAP(TextureList *, data->txl, data->txl_stereo);
+
+  //      GPUTexture *tex = data->txl_stereo->textures[0];
+  //      // GPUTexture *tex = data->txl_stereodtxl->textures[0];
+  //    }
+  //    else {
+  //      break;
+  //  }
+  //}
+
+  GPUTexture *stereoTex0 = viewport->engine_data[0].data->txl_stereo->textures[0];
+  GPUTexture *stereoTex1 = viewport->engine_data[1].data->txl_stereo->textures[0];
+
+  //GPUTexture *test = dtxl->color_stereo->
 
   GPU_texture_bind(dtxl->color_stereo, 0);
-  //GPU_texture_bind(dtxl->color_overlay_stereo, 1);
+  //// GPU_texture_bind(dtxl->color_overlay_stereo, 1);
+  //GPU_texture_bind(stereoTex0, 1);
+  //GPU_texture_bind(stereoTex1, 2);
 
   immBegin(GPU_PRIM_TRI_STRIP, 4);
 
@@ -704,130 +752,23 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
   immEnd();
 
   GPU_texture_unbind(dtxl->color_stereo);
-  //GPU_texture_unbind(dtxl->color_overlay_stereo);
+  //// GPU_texture_unbind(dtxl->color_overlay_stereo);
+  //GPU_texture_unbind(stereoTex0);
+  //GPU_texture_unbind(stereoTex1);
 
   immUnbindProgram();
   GPU_matrix_pop_projection();
   GPU_matrix_pop();
 
-      glClear(GL_DEPTH_BUFFER_BIT);
-  //glClear(GL_COLOR_BUFFER_BIT);
+  //// glClear(GL_DEPTH_BUFFER_BIT);
+  //// glClear(GL_COLOR_BUFFER_BIT);
 
   //if (settings == S3D_DISPLAY_ANAGLYPH) {
-  //  //GPU_color_mask(true, true, true, true);
+    GPU_color_mask(true, true, true, true);
   //}
 
   GPU_framebuffer_restore();
 }
-
-
-
-///* Merge the stereo textures. `color` and `overlay` texture will be modified. */
-//void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo_format)
-//{
-//  if (!ELEM(stereo_format->display_mode, S3D_DISPLAY_ANAGLYPH, S3D_DISPLAY_INTERLACE)) {
-//    /* Early Exit: the other display modes need access to the full screen and cannot be
-//     * done from a single viewport. See `wm_stereo.c` */
-//    return;
-//  }
-//  gpu_viewport_framebuffer_view_set(viewport, 0);
-//  DefaultTextureList *dtxl = viewport->txl;
-//  DefaultFramebufferList *dfbl = viewport->fbl; 
-//
-//  /* The composite framebuffer object needs to be created in the window context. */
-//  GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
-//                                {
-//                                    GPU_ATTACHMENT_NONE,
-//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color),
-//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color_overlay),
-//                                });//
-//
-//  GPUVertFormat *vert_format = immVertexFormat();
-//  uint pos = GPU_vertformat_attr_add(vert_format, "pos", GPU_COMP_F32, 2, GPU_FETCH_FLOAT);
-//  GPU_framebuffer_bind(dfbl->stereo_comp_fb);
-//  //GPU_framebuffer_bind(dfbl->default_fb);
-//  GPU_matrix_push();
-//  GPU_matrix_push_projection();
-//  GPU_matrix_identity_set();
-//  GPU_matrix_identity_projection_set();
-//  immBindBuiltinProgram(GPU_SHADER_2D_IMAGE_OVERLAYS_STEREO_MERGE);
-//  //immBindBuiltinProgram(GPU_SHADER_2D_UNIFORM_COLOR);
-//  //immBindBuiltinProgram(GPU_SHADER_2D_CHECKER);
-//  
-//  //immUniform4fv("color1", 1, 1, 1, 1);
-//  const float color1[4] = {1.f, 1.f, 1.f, 1.f};
-//  const float color2[4] = {0.f, 0.f, 0.f, 0.f};
-//  immUniform4fv("color1", color1);
-//  immUniform4fv("color2", color2);
-//  immUniform1i("size", 16);
-//
-//   //void GPU_shader_get_builtin_shader_code(eGPUBuiltinShader shader,
-//   //                                       const char **r_vert,
-//   //                                       const char **r_frag,
-//   //                                       const char **r_geom,
-//   //                                       const char **r_defines);
-//   const char *vert;
-//   const char *frag;
-//   const char *geom;
-//   const char *defines;
-//   GPU_shader_get_builtin_shader_code(GPU_SHADER_2D_CHECKER, &vert, &frag, &geom, &defines);
-//
-//   printf("-------0------\n");
-//   printf("-------vert------\n");
-//   printf(vert);
-//   printf("\n");
-//   printf("-------frag------\n");
-//   printf(frag);
-//   printf("\n");
-//
-//  immUniform1i("imageTexture", 0);
-//  immUniform1i("overlayTexture", 1);
-//  int settings = stereo_format->display_mode;
-//  if (settings == S3D_DISPLAY_ANAGLYPH) {
-//    switch (stereo_format->anaglyph_type) {
-//      case S3D_ANAGLYPH_REDCYAN:
-//        GPU_color_mask(false, true, true, true);
-//        break;
-//      case S3D_ANAGLYPH_GREENMAGENTA:
-//        GPU_color_mask(true, false, true, true);
-//        break;
-//      case S3D_ANAGLYPH_YELLOWBLUE:
-//        GPU_color_mask(false, false, true, true);
-//        break;
-//    }
-//  }
-//  else if (settings == S3D_DISPLAY_INTERLACE) {
-//    settings |= stereo_format->interlace_type << 3;
-//    SET_FLAG_FROM_TEST(settings, stereo_format->flag & S3D_INTERLACE_SWAP, 1 << 6);
-//  }
-//  immUniform1i("stereoDisplaySettings", settings);
-//
-//  GPU_texture_bind(dtxl->color_stereo, 0);
-//  GPU_texture_bind(dtxl->color_overlay_stereo, 1);
-//
-//  immBegin(GPU_PRIM_TRI_STRIP, 4);
-//
-//  immVertex2f(pos, -1.0f, -1.0f);
-//  immVertex2f(pos, 1.0f, -1.0f);
-//  immVertex2f(pos, -1.0f, 1.0f);
-//  immVertex2f(pos, 1.0f, 1.0f);
-//
-//  immEnd();
-//
-//  GPU_texture_unbind(dtxl->color_stereo);
-//  GPU_texture_unbind(dtxl->color_overlay_stereo);
-//
-//  immUnbindProgram();
-//  GPU_matrix_pop_projection();
-//  GPU_matrix_pop();
-//
-//  if (settings == S3D_DISPLAY_ANAGLYPH) {
-//    GPU_color_mask(true, true, true, true);
-//  }
-//
-//  GPU_framebuffer_restore();
-//}
-
 
 ///* Merge the stereo textures. `color` and `overlay` texture will be modified. */
 //void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo_format)
@@ -842,36 +783,58 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
 //  DefaultFramebufferList *dfbl = viewport->fbl;
 //
 //  /* The composite framebuffer object needs to be created in the window context. */
-//  GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
+//  //GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
+//  //                              {
+//  //                                  GPU_ATTACHMENT_NONE,
+//  //                                  GPU_ATTACHMENT_TEXTURE(dtxl->color),
+//  //                                  GPU_ATTACHMENT_TEXTURE(dtxl->color_overlay),
+//  //                              });  //
+//
+//    GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
 //                                {
 //                                    GPU_ATTACHMENT_NONE,
-//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color),
-//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color_overlay),
-//                                });
+//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color)
+//                                });  //
+//
+//
 //
 //  GPUVertFormat *vert_format = immVertexFormat();
 //  uint pos = GPU_vertformat_attr_add(vert_format, "pos", GPU_COMP_F32, 2, GPU_FETCH_FLOAT);
 //  GPU_framebuffer_bind(dfbl->stereo_comp_fb);
+//  // GPU_framebuffer_bind(dfbl->default_fb);
 //  GPU_matrix_push();
 //  GPU_matrix_push_projection();
 //  GPU_matrix_identity_set();
 //  GPU_matrix_identity_projection_set();
 //  immBindBuiltinProgram(GPU_SHADER_2D_IMAGE_OVERLAYS_STEREO_MERGE);
+//  // immBindBuiltinProgram(GPU_SHADER_2D_UNIFORM_COLOR);
+//  // immBindBuiltinProgram(GPU_SHADER_2D_CHECKER);
+//
+//  // immUniform4fv("color1", 1, 1, 1, 1);
+//  //const float color1[4] = {1.f, 1.f, 1.f, 1.f};
+//  //const float color2[4] = {0.f, 0.f, 0.f, 0.f};
+//  //immUniform4fv("color1", color1);
+//  //immUniform4fv("color2", color2);
+//  //immUniform1i("size", 16);
 //
 //
-//  //return GPU_shader_create(vert, frag, geom, NULL, defines, __func__);
 //
-//  //void GPU_shader_get_builtin_shader_code(eGPUBuiltinShader shader,
-//  //                                        const char **r_vert,
-//  //                                        const char **r_frag,
-//  //                                        const char **r_geom,
-//  //                                        const char **r_defines);
+//  /***********PRINT OUT ENCODED SHADER***********/
+//  /*
+//   void GPU_shader_get_builtin_shader_code(eGPUBuiltinShader shader,
+//                                         const char **r_vert,
+//                                         const char **r_frag,
+//                                         const char **r_geom,
+//                                         const char **r_defines);
+//  */
+//
+//     const char *vert, *frag, *geom, *defines;
+//
 //  //const char *vert;
 //  //const char *frag;
 //  //const char *geom;
 //  //const char *defines;
-//  //GPU_shader_get_builtin_shader_code(
-//  //    GPU_SHADER_2D_IMAGE_OVERLAYS_STEREO_MERGE, &vert, &frag, &geom, &defines);
+//  GPU_shader_get_builtin_shader_code(GPU_SHADER_2D_IMAGE_OVERLAYS_MERGE, &vert, &frag, &geom, &defines);
 //
 //  //printf("-------0------\n");
 //  //printf("-------vert------\n");
@@ -880,10 +843,10 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
 //  //printf("-------frag------\n");
 //  //printf(frag);
 //  //printf("\n");
-//
+//  /*******************************/
 //
 //  immUniform1i("imageTexture", 0);
-//  immUniform1i("overlayTexture", 1);
+//  //immUniform1i("overlayTexture", 1);
 //  int settings = stereo_format->display_mode;
 //  if (settings == S3D_DISPLAY_ANAGLYPH) {
 //    switch (stereo_format->anaglyph_type) {
@@ -904,9 +867,12 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
 //  }
 //  immUniform1i("stereoDisplaySettings", settings);
 //
+//  //glClear(GL_DEPTH_BUFFER_BIT);
+//  //glClear(GL_COLOR_BUFFER_BIT);
+//
+//
 //  GPU_texture_bind(dtxl->color_stereo, 0);
-//  GPU_texture_bind(dtxl->color_overlay_stereo, 1);
-//  //GPU_texture_bind(dtxl->color_overlay, 1);
+//  //GPU_texture_bind(dtxl->color_overlay_stereo, 1);
 //
 //  immBegin(GPU_PRIM_TRI_STRIP, 4);
 //
@@ -918,12 +884,14 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
 //  immEnd();
 //
 //  GPU_texture_unbind(dtxl->color_stereo);
-//  GPU_texture_unbind(dtxl->color_overlay_stereo);
-//  //GPU_texture_unbind(dtxl->color_overlay);
+//  //GPU_texture_unbind(dtxl->color_overlay_stereo);
 //
 //  immUnbindProgram();
 //  GPU_matrix_pop_projection();
 //  GPU_matrix_pop();
+//
+//  //glClear(GL_DEPTH_BUFFER_BIT);
+//  //glClear(GL_COLOR_BUFFER_BIT);
 //
 //  if (settings == S3D_DISPLAY_ANAGLYPH) {
 //    GPU_color_mask(true, true, true, true);
@@ -931,88 +899,6 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
 //
 //  GPU_framebuffer_restore();
 //}
-
-
-
-
-///* Merge the stereo textures. `color` and `overlay` texture will be modified. */
-//void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo_format)
-//{
-//  if (!ELEM(stereo_format->display_mode, S3D_DISPLAY_ANAGLYPH, S3D_DISPLAY_INTERLACE)) {
-//    /* Early Exit: the other display modes need access to the full screen and cannot be
-//     * done from a single viewport. See `wm_stereo.c` */
-//    return;
-//  }
-//  gpu_viewport_framebuffer_view_set(viewport, 0);
-//  DefaultTextureList *dtxl = viewport->txl;
-//  DefaultFramebufferList *dfbl = viewport->fbl;
-//
-//  /* The composite framebuffer object needs to be created in the window context. */
-//  GPU_framebuffer_ensure_config(&dfbl->stereo_comp_fb,
-//                                {
-//                                    GPU_ATTACHMENT_NONE,
-//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color),
-//                                    GPU_ATTACHMENT_TEXTURE(dtxl->color_overlay),
-//                                });
-//
-//  GPUVertFormat *vert_format = immVertexFormat();
-//  uint pos = GPU_vertformat_attr_add(vert_format, "pos", GPU_COMP_F32, 2, GPU_FETCH_FLOAT);
-//  GPU_framebuffer_bind(dfbl->stereo_comp_fb);
-//  GPU_matrix_push();
-//  GPU_matrix_push_projection();
-//  GPU_matrix_identity_set();
-//  GPU_matrix_identity_projection_set();
-//  immBindBuiltinProgram(GPU_SHADER_2D_IMAGE_OVERLAYS_STEREO_MERGE);
-//  immUniform1i("imageTexture", 0);
-//  immUniform1i("overlayTexture", 1);
-//  int settings = stereo_format->display_mode;
-//  if (settings == S3D_DISPLAY_ANAGLYPH) {
-//    switch (stereo_format->anaglyph_type) {
-//      case S3D_ANAGLYPH_REDCYAN:
-//        GPU_color_mask(false, true, true, true);
-//        break;
-//      case S3D_ANAGLYPH_GREENMAGENTA:
-//        GPU_color_mask(true, false, true, true);
-//        break;
-//      case S3D_ANAGLYPH_YELLOWBLUE:
-//        GPU_color_mask(false, false, true, true);
-//        break;
-//    }
-//  }
-//  else if (settings == S3D_DISPLAY_INTERLACE) {
-//    settings |= stereo_format->interlace_type << 3;
-//    SET_FLAG_FROM_TEST(settings, stereo_format->flag & S3D_INTERLACE_SWAP, 1 << 6);
-//  }
-//  immUniform1i("stereoDisplaySettings", settings);
-//
-//  GPU_texture_bind(dtxl->color_stereo, 0);
-//  GPU_texture_bind(dtxl->color_overlay_stereo, 1);
-//
-//  immBegin(GPU_PRIM_TRI_STRIP, 4);
-//
-//  immVertex2f(pos, -1.0f, -1.0f);
-//  immVertex2f(pos, 1.0f, -1.0f);
-//  immVertex2f(pos, -1.0f, 1.0f);
-//  immVertex2f(pos, 1.0f, 1.0f);
-//
-//  immEnd();
-//
-//  GPU_texture_unbind(dtxl->color_stereo);
-//  GPU_texture_unbind(dtxl->color_overlay_stereo);
-//
-//  immUnbindProgram();
-//  GPU_matrix_pop_projection();
-//  GPU_matrix_pop();
-//
-//  if (settings == S3D_DISPLAY_ANAGLYPH) {
-//    GPU_color_mask(true, true, true, true);
-//  }
-//
-//  GPU_framebuffer_restore();
-//}
-/* -------------------------------------------------------------------- */
-/** \name Viewport Batches
- * \{ */
 
 static GPUVertFormat *gpu_viewport_batch_format(void)
 {
