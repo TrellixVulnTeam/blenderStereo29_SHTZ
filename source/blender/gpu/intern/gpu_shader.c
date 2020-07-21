@@ -85,7 +85,8 @@ const char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[] = {
     "/* Composite stereo textures */   \n"
     "uniform sampler2D imageTexture;    \n"
     "uniform sampler2D overlayTexture;   \n"
-    "                     \n"
+    //"uniform sampler2D stereoL;   \n"
+    //"uniform sampler2D stereoR;   \n"
     "uniform int stereoDisplaySettings;   \n"
 
     "uniform int anaglyphMethod; \n"
@@ -103,45 +104,50 @@ const char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[] = {
     "blend.b));	\n"
     "}	\n"
 
-    "void main()   \n"
+    "void main() //what I HAVE  \n"
     "{                     \n"
     "  ivec2 texel = ivec2(gl_FragCoord.xy);    \n"
-
-    "vec4 myRed, myCyan;    \n"
-    "vec4 stereoL = texelFetch(imageTexture, texel, 0);     \n"
-    "vec4 stereoR = texelFetch(overlayTexture, texel, 0);   \n"
-
-    //"int method = 0; //color    \n"
-    //"int method = 1; //grayscale    \n"
+      "//vec4 stereoR = already in buffer...?;     \n"
+      "vec4 stereoGB = texelFetch(imageTexture, texel, 0);     \n"
+     "float grayGB = dot(stereoGB.rgb, vec3(.299f, .587f, .114f)); \n"
 
     "if (anaglyphMethod == 0) //color    \n"
-    "{      \n"
-    "myRed = stereoL; \n"
-    "myCyan = stereoR; \n"
-    "}      \n"
+      "imageColor = stereoGB; \n"
 
-    "else if (anaglyphMethod == 1) //grayscale  \n"
-    "{    \n"
-    "float grayL = dot(stereoL.rgb, vec3(.299f, .587f, .114f)); \n"
-    "float grayR = dot(stereoR.rgb, vec3(.299f, .587f, .114f)); \n"
+    "else if (anaglyphMethod == 1) //grayscale    \n"
+      "imageColor = vec4(vec3(grayGB), stereoGB.a); \n"
 
-    "myRed = vec4(vec3(grayL), stereoL.a); \n"
-    "myCyan = vec4(vec3(grayR), stereoR.a); \n"
-    //"myRed = vec4(grayL); \n"
-    //"myCyan = vec4(grayR); \n"
+      "overlayColor = vec4(0.f); \n"
+    "}   \n"
 
-    "}    \n"
+   //"void main() //what i WANT - individual stereoL/R texture access, no masking, manual blending  \n"
+   // "{                     \n"
+   // "  ivec2 texel = ivec2(gl_FragCoord.xy);    \n"
+   // "vec4 stereoL = texelFetch(stereoL, texel, 0);     \n"
+   // "vec4 stereoR = texelFetch(stereoR, texel, 0);     \n"
 
-    "imageColor = myRed;    \n"
-    "overlayColor = myCyan; \n"
+   // "if (anaglyphMethod == 0) //color    \n"
+   // "{      \n"
+   //   "myRed = vec4(stereoL.r, 0.f, 0,f); \n"
+   //   "myCyan = vec4(0.f, stereoR.g, stereoR.b); \n"
+   // "}      \n"
 
-    //"imageColor.rgb = pow(imageColor.rgb, vec3(2.2f));"
-    //"overlayColor.rgb = pow(overlayColor.rgb, vec3(2.2f));"
+   // "else if (anaglyphMethod == 1) //grayscale  \n"
+   // "{    \n"
+   //   "float grayL = dot(stereoL.rgb, vec3(.299f, .587f, .114f)); \n"
+   //   "myRed = vec4(vec3(grayL, 0.f, 0.f), stereoL.a); \n"
 
-    //"imageColor.rgb = pow(imageColor.rgb, vec3(1.f / 2.2f));"
-    //"overlayColor.rgb = pow(overlayColor.rgb, vec3(1.f / 2.2f));"
+   //   "float grayR = dot(stereoR.rgb, vec3(.299f, .587f, .114f)); \n"
+   //   "myCyan = vec4(0.f, grayR, grayR, stereoR.a); \n"
+   // "}    \n"
 
-    "}   \n"};
+	  //"imageColor = blendScreen2(myRed, myCyan); \n"
+   // "overlayColor = vec4(0.f); \n"
+
+   // "}   \n"
+
+};
+
 
 extern char datatoc_gpu_shader_image_color_frag_glsl[];
 extern char datatoc_gpu_shader_image_desaturate_frag_glsl[];

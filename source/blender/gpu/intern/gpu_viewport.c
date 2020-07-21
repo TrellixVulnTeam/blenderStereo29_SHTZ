@@ -651,6 +651,7 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
     switch (stereo_format->anaglyph_type) {
       case S3D_ANAGLYPH_REDCYAN:
         GPU_color_mask(false, true, true, true);
+        //GPU_color_mask(true, true, true, true);
         break;
       case S3D_ANAGLYPH_GREENMAGENTA:
         GPU_color_mask(true, false, true, true);
