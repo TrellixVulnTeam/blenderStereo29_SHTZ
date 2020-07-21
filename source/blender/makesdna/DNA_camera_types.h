@@ -46,12 +46,28 @@ typedef struct CameraStereoSettings {
   short convergence_mode;
   short pivot;
   short flag;
-  char _pad[2];
+  //char _pad[2];
+  short anaglyph_mode;
   /* Cut-off angle at which interocular distance start to fade down. */
   float pole_merge_angle_from;
   /* Cut-off angle at which interocular distance stops to fade down. */
   float pole_merge_angle_to;
 } CameraStereoSettings;
+
+
+//typedef struct CameraStereoSettings {
+//  float interocular_distance;
+//  float convergence_distance;
+//  short convergence_mode;
+//  //short anaglyph_mode;
+//  short pivot;
+//  short flag;
+//  char _pad[2];
+//  /* Cut-off angle at which interocular distance start to fade down. */
+//  float pole_merge_angle_from;
+//  /* Cut-off angle at which interocular distance stops to fade down. */
+//  float pole_merge_angle_to;
+//} CameraStereoSettings;
 
 /* Background Picture */
 typedef struct CameraBGImage {
@@ -186,6 +202,12 @@ enum {
   CAM_S3D_PIVOT_LEFT = 0,
   CAM_S3D_PIVOT_RIGHT = 1,
   CAM_S3D_PIVOT_CENTER = 2,
+};
+
+/* stereo->anaglyphMode */
+enum {
+  CAM_S3D_ANAGLYPH_COLOR = 0,
+  CAM_S3D_ANAGLYPH_GRAY = 1,
 };
 
 /* stereo->flag */

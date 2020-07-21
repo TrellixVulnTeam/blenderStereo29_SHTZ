@@ -110,10 +110,10 @@ const char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[] = {
     "vec4 stereoL = texelFetch(imageTexture, texel, 0);     \n"
     "vec4 stereoR = texelFetch(overlayTexture, texel, 0);   \n"
 
-    //"int method = 0; //traditional    \n"
+    //"int method = 0; //color    \n"
     "int method = 1; //grayscale    \n"
 
-    "if (method == 0) //traditional    \n"
+    "if (method == 0) //color    \n"
     "{      \n"
     "myRed = stereoL; \n"
     "myCyan = stereoR; \n"

@@ -355,6 +355,12 @@ static void rna_def_camera_stereo_data(BlenderRNA *brna)
       {0, NULL, 0, NULL, NULL},
   };
 
+  static const EnumPropertyItem anaglyphMode_items[] = {
+      {CAM_S3D_ANAGLYPH_COLOR, "COLOR", 0, "Color", ""},
+      {CAM_S3D_ANAGLYPH_GRAY, "GRAY", 0, "Gray", ""},
+      {0, NULL, 0, NULL, NULL},
+  };
+
   srna = RNA_def_struct(brna, "CameraStereoData", NULL);
   RNA_def_struct_sdna(srna, "CameraStereoSettings");
   RNA_def_struct_nested(brna, srna, "Camera");
@@ -370,6 +376,11 @@ static void rna_def_camera_stereo_data(BlenderRNA *brna)
   prop = RNA_def_property(srna, "pivot", PROP_ENUM, PROP_NONE);
   RNA_def_property_enum_items(prop, pivot_items);
   RNA_def_property_ui_text(prop, "Pivot", "");
+  RNA_def_property_update(prop, NC_OBJECT | ND_DRAW, NULL);
+
+  prop = RNA_def_property(srna, "anaglyph_mode", PROP_ENUM, PROP_NONE);
+  RNA_def_property_enum_items(prop, anaglyphMode_items);
+  RNA_def_property_ui_text(prop, "Anaglyph Mode", "");
   RNA_def_property_update(prop, NC_OBJECT | ND_DRAW, NULL);
 
   prop = RNA_def_property(srna, "interocular_distance", PROP_FLOAT, PROP_DISTANCE);
