@@ -1084,7 +1084,7 @@ class VIEW3D_MT_mirror(Menu):
 
         for (space_name, space_id) in (("Global", 'GLOBAL'), ("Local", 'LOCAL')):
             for axis_index, axis_name in enumerate("XYZ"):
-                props = layout.operator("transform.mirror", text=f"{axis_name!s} {space_name!s}")
+                props = layout.operator("transform.mirror", text="%s %s" % (axis_name, space_name))
                 props.constraint_axis[axis_index] = True
                 props.orient_type = space_id
 
@@ -6153,7 +6153,7 @@ class VIEW3D_PT_overlay_motion_tracking(Panel):
 
     def draw_header(self, context):
         view = context.space_data
-        self.layout.prop(view, "show_reconstruction", text="")
+        self.layout.prop(view, "show_reconstruction", text=self.bl_label)
 
     def draw(self, context):
         layout = self.layout
@@ -6996,7 +6996,7 @@ class VIEW3D_MT_gpencil_edit_context_menu(Menu):
             col.separator()
 
             col.menu("VIEW3D_MT_mirror", text="Mirror Points")
-            col.menu("VIEW3D_MT_snap", text="Snap Points")
+            col.menu("GPENCIL_MT_snap", text="Snap Points")
 
             col.separator()
 

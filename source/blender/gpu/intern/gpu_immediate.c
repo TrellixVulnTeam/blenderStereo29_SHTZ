@@ -29,6 +29,7 @@
 
 #include "GPU_attr_binding.h"
 #include "GPU_immediate.h"
+#include "GPU_texture.h"
 
 #include "gpu_attr_binding_private.h"
 #include "gpu_context_private.h"
@@ -168,13 +169,7 @@ void immBindProgram(GLuint program, const GPUShaderInterface *shaderface)
 void immBindBuiltinProgram(eGPUBuiltinShader shader_id)
 {
   GPUShader *shader = GPU_shader_get_builtin_shader(shader_id);
-
-  //GPU_shader_get_builtin_shader
-  //GPU_shader_get_builtin_shader_code
-  //GPU_shader_get_builtin_shader_with_config
-
-
-    immBindProgram(shader->program, shader->interface);
+  immBindProgram(shader->program, shader->interface);
 }
 
 void immUnbindProgram(void)
@@ -857,6 +852,18 @@ void immUniform4iv(const char *name, const int data[4])
 {
   GET_UNIFORM
   glUniform4iv(uniform->location, 1, data);
+}
+
+void immBindTexture(const char *name, GPUTexture *tex)
+{
+  GET_UNIFORM
+  GPU_texture_bind(tex, uniform->binding);
+}
+
+void immBindTextureSampler(const char *name, GPUTexture *tex, eGPUSamplerState state)
+{
+  GET_UNIFORM
+  GPU_texture_bind_ex(tex, state, uniform->binding, true);
 }
 
 /* --- convenience functions for setting "uniform vec4 color" --- */

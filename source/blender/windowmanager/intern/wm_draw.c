@@ -106,11 +106,11 @@ static void wm_paintcursor_draw(bContext *C, ScrArea *area, ARegion *region)
 
       if (pc->poll == NULL || pc->poll(C)) {
         /* Prevent drawing outside region. */
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(region->winrct.xmin,
-                  region->winrct.ymin,
-                  BLI_rcti_size_x(&region->winrct) + 1,
-                  BLI_rcti_size_y(&region->winrct) + 1);
+        GPU_scissor_test(true);
+        GPU_scissor(region->winrct.xmin,
+                    region->winrct.ymin,
+                    BLI_rcti_size_x(&region->winrct) + 1,
+                    BLI_rcti_size_y(&region->winrct) + 1);
 
         if (ELEM(win->grabcursor, GHOST_kGrabWrap, GHOST_kGrabHide)) {
           int x = 0, y = 0;
@@ -121,7 +121,7 @@ static void wm_paintcursor_draw(bContext *C, ScrArea *area, ARegion *region)
           pc->draw(C, win->eventstate->x, win->eventstate->y, pc->customdata);
         }
 
-        glDisable(GL_SCISSOR_TEST);
+        GPU_scissor_test(false);
       }
     }
   }
@@ -135,14 +135,7 @@ static void wm_paintcursor_draw(bContext *C, ScrArea *area, ARegion *region)
 
 static void wm_region_draw_overlay(bContext *C, ScrArea *area, ARegion *region)
 {
-  wmWindowManager *wm = CTX_wm_manager(C);
   wmWindow *win = CTX_wm_window(C);
-
-  /* Don't draw overlay with locked interface. Drawing could access scene data that another thread
-   * may be modifying. */
-  if (wm->is_interface_locked) {
-    return;
-  }
 
   wmViewport(&region->winrct);
   UI_SetTheme(area->spacetype, region->regiontype);
@@ -188,8 +181,6 @@ static bool wm_draw_region_stereo_set(Main *bmain,
           Camera *cam = v3d->camera->data;
           CameraBGImage *bgpic = cam->bg_images.first;
           v3d->multiview_eye = sview;
-          //printf("sview aka multiview_eye = %d \n", sview);
-
           if (bgpic) {
             bgpic->iuser.multiview_eye = sview;
           }
@@ -469,8 +460,8 @@ static void wm_draw_region_bind(ARegion *region, int view)
 
     /* For now scissor is expected by region drawing, we could disable it
      * and do the enable/disable in the specific cases that setup scissor. */
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(0, 0, region->winx, region->winy);
+    GPU_scissor_test(true);
+    GPU_scissor(0, 0, region->winx, region->winy);
   }
 
   region->draw_buffer->bound_view = view;
@@ -488,7 +479,7 @@ static void wm_draw_region_unbind(ARegion *region)
     GPU_viewport_unbind(region->draw_buffer->viewport);
   }
   else {
-    glDisable(GL_SCISSOR_TEST);
+    GPU_scissor_test(false);
     GPU_offscreen_unbind(region->draw_buffer->offscreen, false);
   }
 }
@@ -680,7 +671,7 @@ static void wm_draw_window_offscreen(bContext *C, wmWindow *win, bool stereo)
         bool use_viewport = WM_region_use_viewport(area, region);
 
         if (stereo && wm_draw_region_stereo_set(bmain, area, region, STEREO_LEFT_ID)) {
-          wm_draw_region_buffer_create(region, true, use_viewport); //create if needed
+          wm_draw_region_buffer_create(region, true, use_viewport);
 
           for (int view = 0; view < 2; view++) {
             eStereoViews sview;
@@ -701,26 +692,6 @@ static void wm_draw_window_offscreen(bContext *C, wmWindow *win, bool stereo)
             GPU_viewport_stereo_composite(viewport, win->stereo3d_format);
           }
         }
-
-        //for (int view = 0; view < 2; view++) {
-        //    eStereoViews sview;
-        //    if (view == 0) {
-        //      sview = STEREO_LEFT_ID;
-        //    }
-        //    else {
-        //      sview = STEREO_RIGHT_ID;
-        //      wm_draw_region_stereo_set(bmain, area, region, sview);
-        //    }
-
-        //    wm_draw_region_bind(region, view);
-        //    ED_region_do_draw(C, region);
-        //    wm_draw_region_unbind(region);
-        //  }
-        //  if (use_viewport) {
-        //    //GPUViewport *viewport = region->draw_buffer->viewport;
-        //    //GPU_viewport_stereo_composite(viewport, win->stereo3d_format);
-        //  }
-        //}
         else {
           wm_draw_region_buffer_create(region, false, use_viewport);
           wm_draw_region_bind(region, 0);
@@ -848,7 +819,6 @@ static void wm_draw_window(bContext *C, wmWindow *win)
 {
   bScreen *screen = WM_window_get_active_screen(win);
   bool stereo = WM_stereo3d_enabled(win, false);
-  //bool stereo = WM_stereo3d_enabled(win, true);
   /* Draw area regions into their own framebuffer. This way we can redraw
    * the areas that need it, and blit the rest from existing framebuffers. */
   wm_draw_window_offscreen(C, win, stereo);
@@ -860,11 +830,13 @@ static void wm_draw_window(bContext *C, wmWindow *win)
   }
   else if (win->stereo3d_format->display_mode == S3D_DISPLAY_PAGEFLIP) {
     /* For pageflip we simply draw to both back buffers. */
-    glDrawBuffer(GL_BACK_LEFT);
+    GPU_backbuffer_bind(GPU_BACKBUFFER_LEFT);
     wm_draw_window_onscreen(C, win, 0);
-    glDrawBuffer(GL_BACK_RIGHT);
+
+    GPU_backbuffer_bind(GPU_BACKBUFFER_RIGHT);
     wm_draw_window_onscreen(C, win, 1);
-    glDrawBuffer(GL_BACK);
+
+    GPU_backbuffer_bind(GPU_BACKBUFFER);
   }
   else if (ELEM(win->stereo3d_format->display_mode, S3D_DISPLAY_ANAGLYPH, S3D_DISPLAY_INTERLACE)) {
     /* For anaglyph and interlace, we draw individual regions with

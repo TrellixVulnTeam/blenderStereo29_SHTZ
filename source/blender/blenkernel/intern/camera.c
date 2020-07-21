@@ -1042,15 +1042,12 @@ float BKE_camera_multiview_shift_x(const RenderData *rd,
   BLI_assert(camera->type == OB_CAMERA);
 
   if (!is_multiview) {
-    printf("Is NOT multiview \n");
     return data->shiftx;
   }
   else if (rd->views_format == SCE_VIEWS_FORMAT_MULTIVIEW) {
-    printf("IS multiview \n");
     return data->shiftx;
   }
   else { /* SCE_VIEWS_SETUP_BASIC */
-    printf("Is BASIC \n");
     return camera_stereo3d_shift_x(camera, viewname);
   }
 }
