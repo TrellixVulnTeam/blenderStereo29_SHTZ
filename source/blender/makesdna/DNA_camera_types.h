@@ -48,6 +48,8 @@ typedef struct CameraStereoSettings {
   short flag;
   //char _pad[2];
   short anaglyph_mode;
+  //short pivot2;
+
   /* Cut-off angle at which interocular distance start to fade down. */
   float pole_merge_angle_from;
   /* Cut-off angle at which interocular distance stops to fade down. */

@@ -689,7 +689,22 @@ static void wm_draw_window_offscreen(bContext *C, wmWindow *win, bool stereo)
           }
           if (use_viewport) {
             GPUViewport *viewport = region->draw_buffer->viewport;
-            GPU_viewport_stereo_composite(viewport, win->stereo3d_format);
+            //GPU_viewport_stereo_composite(viewport, win->stereo3d_format);
+            GPU_viewport_stereo_composite(viewport, win->stereo3d_format, win->scene->camera->data);
+
+            //Camera myCam;
+            //Camera *data = win->scene->camera->data;
+            //float anaglyphModeChosen = data->stereo.anaglyph_mode;
+            //if (anaglyphModeChosen == CAM_S3D_ANAGLYPH_COLOR) {
+            //  immUniform1i("anaglyphMethod", 0);
+            //}
+            //else if (anaglyphModeChosen == CAM_S3D_ANAGLYPH_GRAY) {
+            //  immUniform1i("anaglyphMethod", 1);
+            //}
+            
+
+
+
           }
         }
         else {

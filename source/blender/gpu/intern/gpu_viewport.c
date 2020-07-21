@@ -597,7 +597,8 @@ void GPU_viewport_colorspace_set(GPUViewport *viewport,
 }
 
 /* Merge the stereo textures. `color` and `overlay` texture will be modified. */
-void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo_format)
+//void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo_format)
+void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo_format, Camera *stereo_camera)
 {
   if (!ELEM(stereo_format->display_mode, S3D_DISPLAY_ANAGLYPH, S3D_DISPLAY_INTERLACE)) {
     /* Early Exit: the other display modes need access to the full screen and cannot be
@@ -626,6 +627,25 @@ void GPU_viewport_stereo_composite(GPUViewport *viewport, Stereo3dFormat *stereo
   immBindBuiltinProgram(GPU_SHADER_2D_IMAGE_OVERLAYS_STEREO_MERGE);
   immUniform1i("imageTexture", 0);
   immUniform1i("overlayTexture", 1);
+
+  float anaglyphModeChosen = stereo_camera->stereo.anaglyph_mode;
+  if (anaglyphModeChosen == CAM_S3D_ANAGLYPH_COLOR) {
+    immUniform1i("anaglyphMethod", 0);
+  }
+  else if (anaglyphModeChosen == CAM_S3D_ANAGLYPH_GRAY) {
+    immUniform1i("anaglyphMethod", 1);
+  }
+
+  //switch (stereo_camera->stereo.anaglyph_mode) {
+  //  case CAM_S3D_ANAGLYPH_COLOR:
+  //    immUniform1i("anaglyphMethod", 0);
+
+  //    break;
+  //  case CAM_S3D_ANAGLYPH_GRAY:
+  //    immUniform1i("anaglyphMethod", 1);
+  //    break;
+  //}
+
   int settings = stereo_format->display_mode;
   if (settings == S3D_DISPLAY_ANAGLYPH) {
     switch (stereo_format->anaglyph_type) {

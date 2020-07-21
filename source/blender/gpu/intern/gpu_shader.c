@@ -88,6 +88,7 @@ const char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[] = {
     "                     \n"
     "uniform int stereoDisplaySettings;   \n"
 
+    "uniform int anaglyphMethod; \n"
     "layout(location = 0) out vec4 imageColor;   \n"
     "layout(location = 1) out vec4 overlayColor;  \n"
 
@@ -111,26 +112,34 @@ const char datatoc_gpu_shader_image_overlays_stereo_merge_frag_glsl[] = {
     "vec4 stereoR = texelFetch(overlayTexture, texel, 0);   \n"
 
     //"int method = 0; //color    \n"
-    "int method = 1; //grayscale    \n"
+    //"int method = 1; //grayscale    \n"
 
-    "if (method == 0) //color    \n"
+    "if (anaglyphMethod == 0) //color    \n"
     "{      \n"
     "myRed = stereoL; \n"
     "myCyan = stereoR; \n"
     "}      \n"
 
-    "else if (method == 1) //grayscale  \n"
+    "else if (anaglyphMethod == 1) //grayscale  \n"
     "{    \n"
     "float grayL = dot(stereoL.rgb, vec3(.299f, .587f, .114f)); \n"
     "float grayR = dot(stereoR.rgb, vec3(.299f, .587f, .114f)); \n"
 
     "myRed = vec4(vec3(grayL), stereoL.a); \n"
     "myCyan = vec4(vec3(grayR), stereoR.a); \n"
+    //"myRed = vec4(grayL); \n"
+    //"myCyan = vec4(grayR); \n"
 
     "}    \n"
 
     "imageColor = myRed;    \n"
     "overlayColor = myCyan; \n"
+
+    //"imageColor.rgb = pow(imageColor.rgb, vec3(2.2f));"
+    //"overlayColor.rgb = pow(overlayColor.rgb, vec3(2.2f));"
+
+    //"imageColor.rgb = pow(imageColor.rgb, vec3(1.f / 2.2f));"
+    //"overlayColor.rgb = pow(overlayColor.rgb, vec3(1.f / 2.2f));"
 
     "}   \n"};
 

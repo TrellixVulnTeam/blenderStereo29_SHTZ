@@ -191,6 +191,7 @@ static void blender_camera_from_object(BlenderCamera *bcam,
     bcam->longitude_max = RNA_float_get(&ccamera, "longitude_max");
 
     bcam->interocular_distance = b_camera.stereo().interocular_distance();
+    //bcam->interocular_distance = b_camera.stereo().interocular_distance();
     if (b_camera.stereo().convergence_mode() == BL::CameraStereoData::convergence_mode_PARALLEL) {
       bcam->convergence_distance = FLT_MAX;
     }
